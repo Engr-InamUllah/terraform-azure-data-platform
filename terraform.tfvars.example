@@ -1,1 +1,3 @@
-project="retail-data"`nenvironment="dev"`nlocation="australiaeast"
+project     = "retail-data"
+environment = "dev"
+location    = "australiaeast"

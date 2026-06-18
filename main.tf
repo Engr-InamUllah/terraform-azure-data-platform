@@ -1,6 +1,43 @@
-terraform { required_version = ">= 1.6"; required_providers { azurerm = { source = "hashicorp/azurerm"; version = "~> 4.0" } } }
-provider "azurerm" { features {} }
-resource "azurerm_resource_group" "data" { name = "${var.project}-${var.environment}-rg"; location = var.location }
-resource "azurerm_storage_account" "lake" { name = replace("${var.project}${var.environment}lake", "-", ""); resource_group_name=azurerm_resource_group.data.name; location=azurerm_resource_group.data.location; account_tier="Standard"; account_replication_type="LRS"; is_hns_enabled=true; min_tls_version="TLS1_2"; allow_nested_items_to_be_public=false }
-resource "azurerm_storage_data_lake_gen2_filesystem" "layers" { for_each=toset(["bronze","silver","gold"]); name=each.value; storage_account_id=azurerm_storage_account.lake.id }
-resource "azurerm_log_analytics_workspace" "logs" { name="${var.project}-${var.environment}-logs"; location=azurerm_resource_group.data.location; resource_group_name=azurerm_resource_group.data.name; sku="PerGB2018"; retention_in_days=30 }
+terraform {
+  required_version = ">= 1.6"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "data" {
+  name     = "${var.project}-${var.environment}-rg"
+  location = var.location
+}
+
+resource "azurerm_storage_account" "lake" {
+  name                            = replace("${var.project}${var.environment}lake", "-", "")
+  resource_group_name             = azurerm_resource_group.data.name
+  location                        = azurerm_resource_group.data.location
+  account_tier                    = "Standard"
+  account_replication_type        = "LRS"
+  is_hns_enabled                  = true
+  min_tls_version                 = "TLS1_2"
+  allow_nested_items_to_be_public = false
+}
+
+resource "azurerm_storage_data_lake_gen2_filesystem" "layers" {
+  for_each           = toset(["bronze", "silver", "gold"])
+  name               = each.value
+  storage_account_id = azurerm_storage_account.lake.id
+}
+
+resource "azurerm_log_analytics_workspace" "logs" {
+  name                = "${var.project}-${var.environment}-logs"
+  location            = azurerm_resource_group.data.location
+  resource_group_name = azurerm_resource_group.data.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+}
