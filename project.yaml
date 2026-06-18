@@ -1,0 +1,19 @@
+name: terraform-azure-data-platform
+owner: Engr-InamUllah
+status: scaffold
+stack: 'Terraform, Azure, GitHub Actions'
+pipeline:
+  - init
+  - validate
+  - plan
+  - security_scan
+  - apply
+quality_gates:
+  - schema_validation
+  - null_thresholds
+  - duplicate_detection
+  - freshness_check
+  - automated_tests
+security:
+  secrets: environment_or_secret_store
+  least_privilege: true
